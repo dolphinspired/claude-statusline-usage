@@ -1,5 +1,5 @@
-STATUSLINE_SRC := $(abspath src/statusline-command.sh)
-STATUSLINE_DEST := $(HOME)/.claude/statusline-command.sh
+STATUSLINE_SRC := $(abspath src/statusline.sh)
+STATUSLINE_DEST := $(HOME)/.claude/statusline.sh
 
 .PHONY: activate clean install setup print test 
 
@@ -23,7 +23,7 @@ setup: install
 
 # Test printing out the statusline with live ccburn data, but no context.
 print:
-	@echo '{}' | bash src/statusline-command.sh
+	@echo '{}' | bash src/statusline.sh
 
 test:
 	pytest tests/ -v

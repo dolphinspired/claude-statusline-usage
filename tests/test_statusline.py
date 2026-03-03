@@ -10,7 +10,7 @@ import re
 import subprocess
 import tempfile
 
-SCRIPT = "./src/statusline-command.sh"
+SCRIPT = "./src/statusline.sh"
 
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
 

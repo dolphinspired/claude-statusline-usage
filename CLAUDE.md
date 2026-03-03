@@ -23,7 +23,7 @@ The shell statusline script reads from stdin (Claude Code's statusline JSON) and
 
 ```bash
 # Test the statusline script manually
-echo '{}' | bash src/statusline-command.sh
+echo '{}' | bash src/statusline.sh
 ```
 
 ## Architecture
@@ -32,7 +32,7 @@ echo '{}' | bash src/statusline-command.sh
 
 Two separate data streams feed the statusline:
 
-1. **Statusline JSON** (stdin to `src/statusline-command.sh`) — provided by Claude Code at render time. Contains model name, cwd, context window stats (`used_percentage`, `context_window_size`, `total_input_tokens`, `total_output_tokens`).
+1. **Statusline JSON** (stdin to `src/statusline.sh`) — provided by Claude Code at render time. Contains model name, cwd, context window stats (`used_percentage`, `context_window_size`, `total_input_tokens`, `total_output_tokens`).
 
 2. **Usage API** — `GET https://api.anthropic.com/api/oauth/usage` with the OAuth token from `~/.claude/.credentials.json`. Returns rate-limit utilization for `five_hour`, `seven_day`, `seven_day_sonnet`, and `extra_usage`. Cached to `/tmp/claude-usage-cache.json` with a 5-minute TTL to avoid hammering the API on every render.
 
