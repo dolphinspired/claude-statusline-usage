@@ -14,12 +14,7 @@ install:
 	pip install -r requirements.txt
 
 setup: install
-	@if [ -f "$(STATUSLINE_DEST)" ] && [ ! -L "$(STATUSLINE_DEST)" ]; then \
-		cp "$(STATUSLINE_DEST)" "$(STATUSLINE_DEST).bak"; \
-		echo "Backed up existing statusline script to $(STATUSLINE_DEST).bak"; \
-	fi
-	ln -sf "$(STATUSLINE_SRC)" "$(STATUSLINE_DEST)"
-	@echo "Linked $(STATUSLINE_DEST) -> $(STATUSLINE_SRC)"
+	bash src/setup.sh "$(STATUSLINE_SRC)" "$(STATUSLINE_DEST)"
 
 # Test printing out the statusline with live ccburn data, but no context.
 print:
