@@ -1,7 +1,6 @@
 VENV := .venv
 PYTHON := $(VENV)/bin/python
 PIP := $(VENV)/bin/pip
-CCBURN := $(VENV)/bin/ccburn
 
 STATUSLINE_SRC := $(abspath src/statusline-command.sh)
 STATUSLINE_DEST := $(HOME)/.claude/statusline-command.sh
