@@ -1,16 +1,17 @@
-VENV := .venv
-PYTHON := $(VENV)/bin/python
-PIP := $(VENV)/bin/pip
-
 STATUSLINE_SRC := $(abspath src/statusline-command.sh)
 STATUSLINE_DEST := $(HOME)/.claude/statusline-command.sh
 
-.PHONY: setup install test clean
+.PHONY: activate clean install setup print test 
+
+activate:
+	source ./venv/bin/activate
+
+clean:
+	rm -rf .venv **/__pycache__ .pytest_cache
 
 install:
-	python3 -m venv $(VENV)
-	$(PIP) install --upgrade pip
-	$(PIP) install -r requirements.txt
+	python3 -m venv .venv
+	pip install -r requirements.txt
 
 setup: install
 	@if [ -f "$(STATUSLINE_DEST)" ] && [ ! -L "$(STATUSLINE_DEST)" ]; then \
@@ -20,8 +21,9 @@ setup: install
 	ln -sf "$(STATUSLINE_SRC)" "$(STATUSLINE_DEST)"
 	@echo "Linked $(STATUSLINE_DEST) -> $(STATUSLINE_SRC)"
 
-test:
+# Test printing out the statusline with live ccburn data, but no context.
+print:
 	@echo '{}' | bash src/statusline-command.sh
 
-clean:
-	rm -rf $(VENV)
+test:
+	pytest tests/ -v

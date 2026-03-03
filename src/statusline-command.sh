@@ -90,8 +90,9 @@ format_week_reset() {
 # --- Fetch/cache ccburn data ---
 session_section=""
 week_section=""
+ccburn_data="${CCBURN_DATA:-}"
 
-if [ -x "$ccburn_bin" ]; then
+if [ -z "$ccburn_data" ] && [ -x "$ccburn_bin" ]; then
   mkdir -p "$(dirname "$CCBURN_CACHE")" 2>/dev/null
   fetch_fresh=1
   if [ -f "$CCBURN_CACHE" ]; then
@@ -109,32 +110,33 @@ if [ -x "$ccburn_bin" ]; then
 
   if [ -f "$CCBURN_CACHE" ]; then
     ccburn_data=$(cat "$CCBURN_CACHE" 2>/dev/null)
-    if [ -n "$ccburn_data" ]; then
-      session_util=$(echo "$ccburn_data" | jq -r '.limits.session.utilization // empty')
-      session_reset_ts=$(echo "$ccburn_data" | jq -r '.limits.session.resets_at // empty')
-      week_util=$(echo "$ccburn_data" | jq -r '.limits.weekly.utilization // empty')
-      week_reset_ts=$(echo "$ccburn_data" | jq -r '.limits.weekly.resets_at // empty')
+  fi
+fi
 
-      if [ -n "$session_util" ]; then
-        session_pct=$(awk "BEGIN {printf \"%.0f\", $session_util * 100}" 2>/dev/null || echo 0)
-        [ "$session_pct" -gt 100 ] 2>/dev/null && session_pct=100
-        [ "$session_pct" -lt 0 ]   2>/dev/null && session_pct=0
-        session_bar=$(build_bar "$session_pct" "$MAGENTA")
-        session_reset=$(format_session_reset "$session_reset_ts")
-        session_section="${BOLD}${WHITE}Session${RESET} ${session_bar} ${WHITE}${session_pct}%${RESET}"
-        [ -n "$session_reset" ] && session_section+=" ${GRAY}[${session_reset}]${RESET}"
-      fi
+if [ -n "$ccburn_data" ]; then
+  session_util=$(echo "$ccburn_data" | jq -r '.limits.session.utilization // empty')
+  session_reset_ts=$(echo "$ccburn_data" | jq -r '.limits.session.resets_at // empty')
+  week_util=$(echo "$ccburn_data" | jq -r '.limits.weekly.utilization // empty')
+  week_reset_ts=$(echo "$ccburn_data" | jq -r '.limits.weekly.resets_at // empty')
 
-      if [ -n "$week_util" ]; then
-        week_pct=$(awk "BEGIN {printf \"%.0f\", $week_util * 100}" 2>/dev/null || echo 0)
-        [ "$week_pct" -gt 100 ] 2>/dev/null && week_pct=100
-        [ "$week_pct" -lt 0 ]   2>/dev/null && week_pct=0
-        week_bar=$(build_bar "$week_pct" "$GREEN")
-        week_reset=$(format_week_reset "$week_reset_ts")
-        week_section="${BOLD}${WHITE}Week${RESET} ${week_bar} ${WHITE}${week_pct}%${RESET}"
-        [ -n "$week_reset" ] && week_section+=" ${GRAY}[${week_reset}]${RESET}"
-      fi
-    fi
+  if [ -n "$session_util" ]; then
+    session_pct=$(awk "BEGIN {printf \"%.0f\", $session_util * 100}" 2>/dev/null || echo 0)
+    [ "$session_pct" -gt 100 ] 2>/dev/null && session_pct=100
+    [ "$session_pct" -lt 0 ]   2>/dev/null && session_pct=0
+    session_bar=$(build_bar "$session_pct" "$MAGENTA")
+    session_reset=$(format_session_reset "$session_reset_ts")
+    session_section="${BOLD}${WHITE}Session${RESET} ${session_bar} ${WHITE}${session_pct}%${RESET}"
+    [ -n "$session_reset" ] && session_section+=" ${GRAY}[${session_reset}]${RESET}"
+  fi
+
+  if [ -n "$week_util" ]; then
+    week_pct=$(awk "BEGIN {printf \"%.0f\", $week_util * 100}" 2>/dev/null || echo 0)
+    [ "$week_pct" -gt 100 ] 2>/dev/null && week_pct=100
+    [ "$week_pct" -lt 0 ]   2>/dev/null && week_pct=0
+    week_bar=$(build_bar "$week_pct" "$GREEN")
+    week_reset=$(format_week_reset "$week_reset_ts")
+    week_section="${BOLD}${WHITE}Week${RESET} ${week_bar} ${WHITE}${week_pct}%${RESET}"
+    [ -n "$week_reset" ] && week_section+=" ${GRAY}[${week_reset}]${RESET}"
   fi
 fi
 
