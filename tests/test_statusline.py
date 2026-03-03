@@ -10,8 +10,6 @@ import re
 import subprocess
 import tempfile
 
-import pytest
-
 SCRIPT = "./src/statusline-command.sh"
 
 ANSI_ESCAPE = re.compile(r"\x1b\[[0-9;]*m")
@@ -31,6 +29,7 @@ def run_script(
         "TZ": "UTC",
         "STATUSLINE_CACHE_DIR": tempfile.mkdtemp(),
     }
+    env.pop("GIT_BRANCH", None)  # prevent ambient env from leaking into tests
     if ccburn_mock is not None:
         env["CCBURN_DATA"] = json.dumps(ccburn_mock)
     if extra_env:
@@ -63,24 +62,6 @@ def make_ccburn(
     }
 
 
-@pytest.fixture()
-def git_repo(tmp_path):
-    git_env = {
-        **os.environ,
-        "GIT_AUTHOR_NAME": "Test",
-        "GIT_AUTHOR_EMAIL": "t@t.com",
-        "GIT_COMMITTER_NAME": "Test",
-        "GIT_COMMITTER_EMAIL": "t@t.com",
-    }
-    subprocess.run(["git", "init", str(tmp_path)], check=True, capture_output=True)
-    subprocess.run(
-        ["git", "-C", str(tmp_path), "commit", "--allow-empty", "-m", "init"],
-        check=True,
-        capture_output=True,
-        env=git_env,
-    )
-    return str(tmp_path)
-
 
 # ---------------------------------------------------------------------------
 # Line 1
@@ -111,12 +92,12 @@ class TestLine1:
         line1, _ = run_script({})
         assert "📁" in line1
 
-    def test_git_branch_shown(self, git_repo):
-        line1, _ = run_script({"workspace": {"current_dir": git_repo}})
-        assert re.search(r"\(main\)|\(master\)", line1), f"No branch in: {line1}"
+    def test_git_branch_shown(self):
+        line1, _ = run_script({}, extra_env={"GIT_BRANCH": "main"})
+        assert "(main)" in line1
 
-    def test_no_branch_outside_git(self, tmp_path):
-        line1, _ = run_script({"workspace": {"current_dir": str(tmp_path)}})
+    def test_no_branch_outside_git(self):
+        line1, _ = run_script({}, extra_env={"GIT_BRANCH": ""})
         assert "(" not in line1
 
 

@@ -14,9 +14,11 @@ ctx_size=$(echo "$input" | jq -r '.context_window.context_window_size // 0')
 
 ctx_size=${ctx_size:-0}
 
-# Git branch
+# Git branch — use GIT_BRANCH env var if set (even to empty); otherwise detect via git
 branch=""
-if git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
+if [ -n "${GIT_BRANCH+x}" ]; then
+  branch="$GIT_BRANCH"
+elif git -C "$cwd" rev-parse --git-dir > /dev/null 2>&1; then
   branch=$(git -C "$cwd" symbolic-ref --short HEAD 2>/dev/null || git -C "$cwd" rev-parse --short HEAD 2>/dev/null)
 fi
 
