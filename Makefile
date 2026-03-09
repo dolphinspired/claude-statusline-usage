@@ -4,7 +4,7 @@ STATUSLINE_DEST := $(HOME)/.claude/statusline.sh
 .PHONY: activate clean install setup print test 
 
 activate:
-	source ./venv/bin/activate
+	source ./.venv/bin/activate
 
 clean:
 	rm -rf .venv **/__pycache__ .pytest_cache

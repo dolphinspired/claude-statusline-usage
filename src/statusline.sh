@@ -109,10 +109,10 @@ if [ -z "$ccburn_data" ] && [ -x "$ccburn_bin" ]; then
       echo "$ccburn_json" > "$CCBURN_CACHE"
     fi
   fi
+fi
 
-  if [ -f "$CCBURN_CACHE" ]; then
-    ccburn_data=$(cat "$CCBURN_CACHE" 2>/dev/null)
-  fi
+if [ -z "$ccburn_data" ] && [ -f "$CCBURN_CACHE" ]; then
+  ccburn_data=$(cat "$CCBURN_CACHE" 2>/dev/null)
 fi
 
 if [ -n "$ccburn_data" ]; then
