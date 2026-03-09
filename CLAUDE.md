@@ -67,6 +67,14 @@ Two lines:
 
 Session and Week sections only appear when ccburn data is available.
 
+## Regenerating the README screenshot
+
+```bash
+.venv/bin/python3 src/render_screenshot.py   # run from repo root
+```
+
+Update the sample model name or utilization values inside the script as needed.
+
 ## Context files
 
 - `context/ccburn.md` — ccburn tool reference (commands, flags, JSON output format).

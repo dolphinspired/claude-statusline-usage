@@ -1,2 +1,3 @@
 ccburn==0.4.3
 pytest>=8.0
+Pillow>=10.0

@@ -2,6 +2,10 @@
 
 A Claude Code statusline script that displays context window usage and subscription rate-limit burn inline in the terminal.
 
+## Preview
+
+![Statusline preview](img/statusline.png)
+
 ## What it does
 
 `src/statusline.sh` renders two lines:
