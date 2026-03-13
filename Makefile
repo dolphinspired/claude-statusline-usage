@@ -14,6 +14,7 @@ install:
 	pip install -r requirements.txt
 
 setup: install
+	@command -v ccburn >/dev/null 2>&1 || echo "Warning: ccburn not found on PATH. Install it with: pipx install ccburn"
 	bash src/setup.sh "$(STATUSLINE_SRC)" "$(STATUSLINE_DEST)"
 
 # Test printing out the statusline with live ccburn data, but no context.

@@ -63,16 +63,10 @@ else
 fi
 
 # --- ccburn binary discovery ---
-# Script may be symlinked to ~/.claude/; resolve real path to find repo's .venv
 CCBURN_CACHE="${STATUSLINE_CACHE_DIR:-$HOME/.claude/cache}/ccburn.json"
 CACHE_MAX_AGE="${STATUSLINE_CACHE_TTL:-30}"
 
 ccburn_bin=$(command -v ccburn 2>/dev/null)
-if [ -z "$ccburn_bin" ]; then
-  script_real=$(readlink -f "$0" 2>/dev/null || echo "$0")
-  repo_dir=$(dirname "$(dirname "$script_real")")
-  ccburn_bin="$repo_dir/.venv/bin/ccburn"
-fi
 
 # --- Reset-time formatters ---
 # format_session_reset <iso>: e.g. "2pm", "11am"

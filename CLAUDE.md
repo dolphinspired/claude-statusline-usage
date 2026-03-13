@@ -8,14 +8,16 @@ Tooling repo for a Claude Code statusline that displays subscription usage metri
 
 ## Environment
 
-Python venv at `.venv/`. Activate with `source .venv/bin/activate` or prefix commands with `.venv/bin/`.
+Python venv at `.venv/` for dev tooling (pytest, Pillow). Activate with `source .venv/bin/activate` or prefix commands with `.venv/bin/`.
+
+`ccburn` is expected to be installed globally (e.g. `pipx install ccburn`), not in the venv.
 
 ```bash
-# Install dependencies
+# Install dev dependencies
 pip install -r requirements.txt
 
 # Run ccburn (primary tool for usage data)
-.venv/bin/ccburn --json --once   # structured output for scripting
+ccburn --json --once   # structured output for scripting
 ```
 
 Test the statusline script manually:
@@ -55,8 +57,7 @@ Set `CCBURN_DATA` in the environment to inject raw ccburn JSON directly — bina
 
 ### ccburn binary discovery
 
-1. `command -v ccburn` (PATH)
-2. Falls back to `$repo_dir/.venv/bin/ccburn` (resolves symlinks via `readlink -f`)
+`command -v ccburn` (PATH only — no venv fallback)
 
 ### Statusline output
 

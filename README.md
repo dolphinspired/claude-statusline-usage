@@ -17,17 +17,25 @@ Context is always shown. Session and weekly bars appear when `ccburn` data is av
 
 ## Requirements
 
-- Python 3.10+
 - `bash`, `jq`, `git`, `awk` (standard on Linux/macOS)
-- `ccburn` pip package (installed by `make setup`)
+- `ccburn` installed globally (see Setup)
 
 ## Setup
+
+Install `ccburn` globally (once):
+
+```bash
+pipx install ccburn
+# or: pip install --user ccburn
+```
+
+Then run:
 
 ```bash
 make setup
 ```
 
-This creates `.venv/`, installs `ccburn`, and symlinks `src/statusline.sh` to `~/.claude/statusline.sh`.
+This symlinks `src/statusline.sh` to `~/.claude/statusline.sh` (and creates a `.venv/` for dev tooling).
 
 Then register the statusline in `~/.claude/settings.json`:
 
@@ -59,11 +67,11 @@ make test-unit
 
 ```bash
 # Interactive TUI (live-updating burn-up charts)
-.venv/bin/ccburn session
-.venv/bin/ccburn weekly
+ccburn session
+ccburn weekly
 
 # JSON output for scripting
-.venv/bin/ccburn --json --once
+ccburn --json --once
 ```
 
 ## Configuration
