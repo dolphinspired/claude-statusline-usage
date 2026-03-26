@@ -11,9 +11,9 @@ A Claude Code statusline script that displays context window usage and subscript
 `src/statusline.sh` renders two lines:
 
 - **Line 1:** active model, current folder, git branch
-- **Line 2:** context window fill bar · session rate-limit bar · weekly rate-limit bar
+- **Line 2:** context window fill bar · usage rate-limit bar · weekly rate-limit bar
 
-Context is always shown. Session and weekly bars appear when `ccburn` data is available.
+Context is always shown. Usage and weekly bars appear when `ccburn` data is available.
 
 ## Requirements
 

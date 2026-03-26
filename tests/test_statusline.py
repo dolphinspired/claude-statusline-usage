@@ -126,13 +126,13 @@ class TestContextSection:
 
 
 # ---------------------------------------------------------------------------
-# Line 2 — Session section
+# Line 2 — Usage section
 # ---------------------------------------------------------------------------
 
-class TestSessionSection:
-    def test_session_label_shown(self):
+class TestUsageSection:
+    def test_usage_label_shown(self):
         _, line2 = run_script({}, ccburn_mock=make_ccburn())
-        assert "Session" in line2
+        assert "Usage" in line2
 
     def test_session_percentage(self):
         _, line2 = run_script({}, ccburn_mock=make_ccburn(session_util=0.45))
@@ -160,7 +160,7 @@ class TestSessionSection:
 
     def test_session_absent_with_no_data(self):
         _, line2 = run_script({}, ccburn_mock={"limits": {}})
-        assert "Session" not in line2
+        assert "Usage" not in line2
 
     def test_null_session_util_omits_section(self):
         mock = {
@@ -170,7 +170,7 @@ class TestSessionSection:
             }
         }
         _, line2 = run_script({}, ccburn_mock=mock)
-        assert "Session" not in line2
+        assert "Usage" not in line2
 
 
 # ---------------------------------------------------------------------------
@@ -211,7 +211,7 @@ class TestWeekSection:
         }
         _, line2 = run_script({}, ccburn_mock=mock)
         assert "Week" not in line2
-        assert "Session" in line2
+        assert "Usage" in line2
 
 
 # ---------------------------------------------------------------------------

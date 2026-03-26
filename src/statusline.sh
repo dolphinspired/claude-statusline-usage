@@ -110,7 +110,7 @@ _main() {
     if [[ "$fetch_fresh" -eq 1 ]]; then
       local ccburn_json=""
       ccburn_json="$("$ccburn_bin" --json --once 2>/dev/null)" || true
-      if [[ -n "$ccburn_json" ]]; then
+      if [[ -n "$ccburn_json" ]] && printf '%s' "$ccburn_json" | jq -e . >/dev/null 2>&1; then
         printf '%s\n' "$ccburn_json" > "$ccburn_cache"
       fi
     fi
@@ -120,7 +120,7 @@ _main() {
     ccburn_data="$(cat "$ccburn_cache" 2>/dev/null)" || true
   fi
 
-  if [[ -n "$ccburn_data" ]]; then
+  if [[ -n "$ccburn_data" ]] && printf '%s' "$ccburn_data" | jq -e . >/dev/null 2>&1; then
     local -r session_util="$(printf '%s' "$ccburn_data" | jq -r '.limits.session.utilization // empty')"
     local -r session_reset_ts="$(printf '%s' "$ccburn_data" | jq -r '.limits.session.resets_at // empty')"
     local -r week_util="$(printf '%s' "$ccburn_data" | jq -r '.limits.weekly.utilization // empty')"
@@ -133,7 +133,7 @@ _main() {
       if [[ "$session_pct" -lt 0 ]]; then session_pct=0; fi
       local -r session_bar="$(build_bar "$session_pct" "$MAGENTA")"
       local -r session_reset="$(format_session_reset "$session_reset_ts")"
-      session_section="${BOLD}${WHITE}Session${RESET} ${session_bar} ${WHITE}${session_pct}%${RESET}"
+      session_section="${BOLD}${WHITE}Usage${RESET} ${session_bar} ${WHITE}${session_pct}%${RESET}"
       if [[ -n "$session_reset" ]]; then
         session_section+=" ${GRAY}[${session_reset}]${RESET}"
       fi
@@ -153,7 +153,7 @@ _main() {
     fi
   fi
 
-  # --- Assemble line 2: Context always present; Session + Week appended if available ---
+  # --- Assemble line 2: Context always present; Usage + Week appended if available ---
   local line2="$ctx_section"
   if [[ -n "$session_section" ]]; then
     line2+=" ${GRAY}•${RESET} ${session_section}"
