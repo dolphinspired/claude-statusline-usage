@@ -1,58 +1,49 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+SCRIPT_NAME="$(basename "$0")"
 
-if [ $# -ne 2 ]; then
-  echo "Usage: $0 <src> <dest>" >&2
-  exit 1
-fi
+log()       { printf '[%s] %s\n' "$SCRIPT_NAME" "$*" >&2; }
+die()       { log "ERROR: $*"; exit 1; }
+prompt_Yn() { local r; read -r -p "[$SCRIPT_NAME] $* [Y/n] " r; [[ -z "$r" || "$r" =~ ^[Yy]$ ]]; }
 
-STATUSLINE_SRC="$1"
-STATUSLINE_DEST="$2"
-SETTINGS_FILE="$HOME/.claude/settings.json"
-
-# Helper to prompt user - returns 0 (yes) if user says yes or just presses enter
-# Handles both TTY (interactive) and non-TTY (piped) input
-prompt_user() {
-  local prompt_text="$1"
-  local response
-
-  if [ -t 0 ]; then
-    # stdin is a TTY (interactive), use read -p for nice prompt
-    read -p "$prompt_text" response
-  else
-    # stdin is piped/redirected, read silently from stdin
-    read response
+_main() {
+  if [[ $# -ne 2 ]]; then
+    die "Usage: $SCRIPT_NAME <src> <dest>"
   fi
 
-  # Return success (0) if response is empty or doesn't start with n/N
-  # Return failure (1) if response starts with n/N
-  [[ ! "$response" =~ ^[nN]$ ]]
-}
+  local -r src="$1"
+  local -r dest="$2"
+  local -r settings_file="$HOME/.claude/settings.json"
 
-# Prompt for backup if existing file is a regular file (not a symlink)
-if [ -f "$STATUSLINE_DEST" ] && [ ! -L "$STATUSLINE_DEST" ]; then
-  if prompt_user "Backup existing statusline script? [Y/n] "; then
-    cp "$STATUSLINE_DEST" "$STATUSLINE_DEST.bak"
-    echo "Backed up existing statusline script to $STATUSLINE_DEST.bak"
-  fi
-fi
-
-# Create symlink
-ln -sf "$STATUSLINE_SRC" "$STATUSLINE_DEST"
-echo "Linked $STATUSLINE_DEST -> $STATUSLINE_SRC"
-
-# Check and update settings.json if needed
-if [ -f "$SETTINGS_FILE" ]; then
-  expected_cmd="bash $STATUSLINE_DEST"
-  current_cmd=$(jq -r '.statusLine.command // empty' "$SETTINGS_FILE" 2>/dev/null || echo "")
-
-  if [ -n "$current_cmd" ] && [ "$current_cmd" != "$expected_cmd" ]; then
-    echo ""
-    echo "Current statusLine.command: $current_cmd"
-    if prompt_user "Update settings.json to use: $expected_cmd? [Y/n] "; then
-      jq ".statusLine.command = \"$expected_cmd\"" "$SETTINGS_FILE" > "$SETTINGS_FILE.tmp" && mv "$SETTINGS_FILE.tmp" "$SETTINGS_FILE"
-      echo "Updated $SETTINGS_FILE"
+  # Prompt for backup if existing file is a regular file (not a symlink)
+  if [[ -f "$dest" ]] && [[ ! -L "$dest" ]]; then
+    if prompt_Yn "Backup existing statusline script?"; then
+      cp "$dest" "$dest.bak"
+      log "Backed up existing statusline script to $dest.bak"
     fi
   fi
-fi
+
+  # Create symlink
+  ln -sf "$src" "$dest"
+  log "Linked $dest -> $src"
+
+  # Check and update settings.json if needed
+  if [[ -f "$settings_file" ]]; then
+    local -r expected_cmd="bash $dest"
+    local current_cmd=""
+    current_cmd="$(jq -r '.statusLine.command // empty' "$settings_file")" || true
+
+    if [[ -n "$current_cmd" ]] && [[ "$current_cmd" != "$expected_cmd" ]]; then
+      printf '\n' >&2
+      log "Current statusLine.command: $current_cmd"
+      if prompt_Yn "Update settings.json to use: $expected_cmd?"; then
+        jq --arg cmd "$expected_cmd" '.statusLine.command = $cmd' "$settings_file" \
+          > "$settings_file.tmp" && mv "$settings_file.tmp" "$settings_file"
+        log "Updated $settings_file"
+      fi
+    fi
+  fi
+}
+
+_main "$@"

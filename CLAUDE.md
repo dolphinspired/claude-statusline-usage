@@ -2,6 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+**Skills:** Load the `/python` skill — it covers venv setup, pyright, testing patterns, and code design conventions.
+
 ## Purpose
 
 Tooling repo for a Claude Code statusline that displays subscription usage metrics inline in the terminal. Shows context window usage, session rate-limit burn, and weekly rate-limit burn.
