@@ -33,18 +33,40 @@ build_bar() {
   printf '%s' "$bar"
 }
 
-# format_session_reset <iso>: e.g. "2pm", "11am"
+# file_mtime <path>: epoch modification time, portable across GNU (stat -c)
+# and BSD/macOS (stat -f). Prints 0 if the file is missing or unreadable.
+file_mtime() {
+  stat -c %Y "$1" 2>/dev/null || stat -f %m "$1" 2>/dev/null || printf '0'
+}
+
+# ISO timestamps are parsed with jq rather than `date`, because `date -d` and
+# the `%-m` no-pad flag are GNU-only and fail on BSD/macOS. jq's localtime
+# yields the array [year, month(0-based), mday, hour, min, sec, wday, yday]
+# in local time. The leading sub() calls strip fractional seconds and the
+# timezone offset so fromdateiso8601 accepts the value.
+
+# format_session_reset <iso>: local time, e.g. "2pm", "11am"
 format_session_reset() {
   local -r ts="$1"
   if [[ -z "$ts" ]]; then return 0; fi
-  date -d "$ts" +"%l%p" 2>/dev/null | tr '[:upper:]' '[:lower:]' | tr -d ' '
+  printf '%s' "$ts" | jq -rR '
+    ((sub("\\.[0-9]+";"") | sub("([+-][0-9]{2}:[0-9]{2})$|Z$";"")) + "Z")
+    | (try fromdateiso8601 catch empty) | localtime
+    | .[3] as $hour
+    | ((if $hour % 12 == 0 then 12 else $hour % 12 end) | tostring)
+      + (if $hour < 12 then "am" else "pm" end)
+  ' 2>/dev/null
 }
 
-# format_week_reset <iso>: e.g. "3/6", "12/31"
+# format_week_reset <iso>: local date, e.g. "3/6", "12/31"
 format_week_reset() {
   local -r ts="$1"
   if [[ -z "$ts" ]]; then return 0; fi
-  date -d "$ts" +"%-m/%-d" 2>/dev/null
+  printf '%s' "$ts" | jq -rR '
+    ((sub("\\.[0-9]+";"") | sub("([+-][0-9]{2}:[0-9]{2})$|Z$";"")) + "Z")
+    | (try fromdateiso8601 catch empty) | localtime
+    | ((.[1] + 1) | tostring) + "/" + (.[2] | tostring)
+  ' 2>/dev/null
 }
 
 _main() {
@@ -100,7 +122,7 @@ _main() {
     local fetch_fresh=1
     if [[ -f "$ccburn_cache" ]]; then
       local cache_mtime
-      cache_mtime="$(stat -c %Y "$ccburn_cache" 2>/dev/null)" || cache_mtime=0
+      cache_mtime="$(file_mtime "$ccburn_cache")"
       local -r cache_age=$(( $(date +%s) - cache_mtime ))
       if [[ "$cache_age" -lt "$cache_max_age" ]]; then
         fetch_fresh=0
