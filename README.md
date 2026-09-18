@@ -35,13 +35,16 @@ Then run:
 make setup
 ```
 
-This symlinks `src/statusline.sh` to `~/.claude/statusline.sh` (and creates a `.venv/` for dev tooling).
+This copies `src/statusline.sh` to `~/.claude/statusline.sh` and registers it in `~/.claude/settings.json` (and creates a `.venv/` for dev tooling).
 
-Then register the statusline in `~/.claude/settings.json`:
+For reference, the entry `make setup` writes to `~/.claude/settings.json` is:
 
 ```json
 {
-  "statusCommand": "~/.claude/statusline.sh"
+  "statusLine": {
+    "type": "command",
+    "command": "bash ~/.claude/statusline.sh"
+  }
 }
 ```
 
@@ -52,7 +55,7 @@ Then register the statusline in `~/.claude/settings.json`:
 Test it manually:
 
 ```bash
-make test
+make print
 # or
 echo '{"model":{"display_name":"claude-sonnet-4-6"},"context_window":{"used_percentage":42,"context_window_size":200000}}' | bash src/statusline.sh
 ```
@@ -60,7 +63,7 @@ echo '{"model":{"display_name":"claude-sonnet-4-6"},"context_window":{"used_perc
 Run the unit test suite:
 
 ```bash
-make test-unit
+make test
 ```
 
 ### ccburn
